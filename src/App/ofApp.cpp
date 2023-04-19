@@ -2,7 +2,11 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-
+    sound.stop();
+    sound.load("music/karmaPolice.mp3");
+    sound.play();
+    sound.setLoop(true);
+    sound.setVolume(0.5);
     ofSetWindowTitle("Snake");
 
     gameState = new GameState();

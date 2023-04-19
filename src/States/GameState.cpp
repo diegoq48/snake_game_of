@@ -31,6 +31,8 @@ void GameState::update() {
 
     if(snake->getHead()[0] == currentFoodX && snake->getHead()[1] == currentFoodY) {
         snake->grow();
+        snake->setScore(snake->getScore() + 10);
+        snake->setSpeed(snake->getSpeed() + 1);
         foodSpawned = false;
     }
 
@@ -42,6 +44,8 @@ void GameState::update() {
 }
 //--------------------------------------------------------------
 void GameState::draw() {
+    ofDrawBitmapString("Score:" + ofToString(snake->getScore()), 10, 20);
+    ofDrawBitmapString("Speed:" + ofToString(snake->getSpeed()), 10, 40);
     drawBoardGrid();
     snake->draw();
     drawFood();
@@ -49,7 +53,7 @@ void GameState::draw() {
 //--------------------------------------------------------------
 void GameState::keyPressed(int key) {
 
-    if(key != OF_KEY_LEFT && key != OF_KEY_RIGHT && key != OF_KEY_UP && key != OF_KEY_DOWN) { return; }
+    //if(key != OF_KEY_LEFT && key != OF_KEY_RIGHT && key != OF_KEY_UP && key != OF_KEY_DOWN) { return; }
 
     switch(key) {
         case OF_KEY_LEFT:
@@ -64,6 +68,27 @@ void GameState::keyPressed(int key) {
         case OF_KEY_DOWN:
             snake->changeDirection(DOWN);
             break;
+        case 'a':
+            snake->setScore(snake->getScore() + 10);
+            snake->grow();
+            for(unsigned int i = 0; i < snake->getBody().size(); i++) {
+            cout << snake->getBody()[i][0] << " " << snake->getBody()[i][1] << endl;
+            }
+            break;
+        case 'u':
+            //removes the last segment of the snake
+           if(snake->getBody().size() > 2) {
+                snake->removeSection(1);
+            } 
+
+            //print the snake vector 
+            for(unsigned int i = 0; i < snake->getBody().size(); i++) {
+                cout << snake->getBody()[i][0] << " " << snake->getBody()[i][1] << endl;
+            } 
+            break;
+        default:
+            break;
+
     }
 }
 //--------------------------------------------------------------

@@ -9,7 +9,7 @@ ifndef OF_ROOT
 	OF_ROOT=$(realpath ../../..)
 endif
 
-OF_ROOT:=$(shell cygpath -u $(OF_ROOT))
+#OF_ROOT:=$(shell cygpath -u $(OF_ROOT))
 
 # call the project makefile!
 include $(OF_ROOT)/libs/openFrameworksCompiled/project/makefileCommon/compile.project.mk

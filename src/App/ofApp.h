@@ -6,6 +6,8 @@
 #include "MenuState.h"
 
 class ofApp : public ofBaseApp{
+	private:
+		ofSoundPlayer sound;
 
 	public:
 		void setup();

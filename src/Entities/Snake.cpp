@@ -6,6 +6,8 @@ Snake::Snake(int segmentSize, int boardSizeW, int boardSizeH) {
     body.push_back({9, 9});
     body.push_back({10, 9});
     body.push_back({11, 9});
+    this->speed = 1;
+    this->score = 0;
     this->direction = LEFT;
     this->crashed = false;
     this->segmentSize = segmentSize;
@@ -63,6 +65,11 @@ void Snake::draw() {
         int curX = this->body[i][0];
         int curY = this->body[i][1];
         ofSetColor(ofColor::white);
+        // draw the head red and the tail green 
+        if(i == 0)
+            ofSetColor(ofColor::red);
+        if(i == body.size() - 1)
+            ofSetColor(ofColor::orange);
         ofDrawRectangle(curX * segmentSize, curY * segmentSize, segmentSize, segmentSize);
     }
 }
@@ -95,4 +102,14 @@ void Snake::checkSelfCrash() {
 void Snake::grow() {
     vector<int> newSegment = this->getTail();
     this->body.push_back(newSegment);
+}
+
+void Snake::removeSection(int numOfSections, int recursionDepth) {
+    if (recursionDepth == numOfSections){
+        return;
+    }
+    else {
+        this->body.pop_back();
+        removeSection(numOfSections, recursionDepth + 1);
+    }
 }

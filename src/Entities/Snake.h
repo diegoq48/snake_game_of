@@ -12,6 +12,8 @@ enum Direction {
 class Snake {
 
 private:
+    unsigned int speed; 
+    unsigned int score;
     std::vector<std::vector<int>> body;
     Direction direction;
     int boardSizeWidth, boardSizeHeight;
@@ -21,12 +23,25 @@ private:
 public:
     Snake(int segmentSize, int boardSizeW, int boardSizeH);
     ~Snake();
+    int getScore() {
+        return this->score;
+    }
+    void setScore(int score) {
+        this->score = score;
+    }
+    int getSpeed() {
+        return this->speed;
+    }
+    void setSpeed(int speed) {
+        this->speed = speed;
+    }
 
     void update();
     void draw();
     void changeDirection(Direction d);
     void checkSelfCrash();
     void grow();
+    void removeSection(int numOfSections, int recursionDepth=0);
     bool isCrashed() {
         return this->crashed;
     }
