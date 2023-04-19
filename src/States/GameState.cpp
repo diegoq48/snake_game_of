@@ -14,9 +14,13 @@ GameState::~GameState() {
 }
 //--------------------------------------------------------------
 void GameState::reset() {
-    delete snake;
-    snake = new Snake(cellSize, boardSizeWidth, boardSizeHeight);
-    foodSpawned = false;
+    if(!paused){
+        delete snake;
+        snake = new Snake(cellSize, boardSizeWidth, boardSizeHeight);
+        foodSpawned = false;
+        std::cout << "Game reset" << std::endl;
+        std::cout << paused << std::endl;
+    }
     setFinished(false);
     setNextState("");
 }
@@ -24,7 +28,7 @@ void GameState::reset() {
 void GameState::update() {
 
     if(snake->isCrashed()) {
-        this->setNextState("MenuState");
+        this->setNextState("looseState");
         this->setFinished(true);
         return;
     }
@@ -85,6 +89,10 @@ void GameState::keyPressed(int key) {
             for(unsigned int i = 0; i < snake->getBody().size(); i++) {
                 cout << snake->getBody()[i][0] << " " << snake->getBody()[i][1] << endl;
             } 
+            break;
+        case 'p':
+            setFinished(true);
+            setNextState("pauseState");
             break;
         default:
             break;

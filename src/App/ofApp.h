@@ -4,6 +4,8 @@
 #include "State.h"
 #include "GameState.h"
 #include "MenuState.h"
+#include "looseState.h"
+#include "pauseState.h"
 
 class ofApp : public ofBaseApp{
 	private:
@@ -26,8 +28,11 @@ class ofApp : public ofBaseApp{
 		// void dragEvent(ofDragInfo dragInfo);
 		// void gotMessage(ofMessage msg);
 
+
 		State* currentState;
 		GameState* gameState;
 		MenuState* menuState;
+		looseState* LooseState;
+		pauseState* PauseState;
 		
 };

@@ -3,6 +3,8 @@
 #include "State.h"
 #include "Snake.h"
 #include "ofMain.h"
+//forward declaration of pauseState
+class pauseState;
 
 class GameState : public State {
     public:
@@ -27,4 +29,5 @@ class GameState : public State {
 
         int boardSizeWidth, boardSizeHeight;
         int cellSize; // Pixels
+        bool paused = false;
 };
