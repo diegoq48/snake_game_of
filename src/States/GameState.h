@@ -3,8 +3,8 @@
 #include "State.h"
 #include "Snake.h"
 #include "ofMain.h"
-//forward declaration of pauseState
-class pauseState;
+#include "staticEntity.h"
+
 
 class GameState : public State {
     public:
@@ -30,4 +30,8 @@ class GameState : public State {
         int boardSizeWidth, boardSizeHeight;
         int cellSize; // Pixels
         bool paused = false;
+    private:
+        std::vector<std::unique_ptr<staticEntity>> staticEntityVector;
+        unsigned int tick = 0;
+        unsigned int entityCount = 1;
 };

@@ -54,4 +54,7 @@ public:
     std::vector<std::vector<int>> getBody() {
         return this->body;
     }
+    void setCrashed (bool crashed) {
+        this->crashed = crashed;
+    }
 };

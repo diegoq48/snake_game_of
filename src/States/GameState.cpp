@@ -1,5 +1,4 @@
 #include "GameState.h"
-
 //--------------------------------------------------------------
 GameState::GameState() {
     foodSpawned = false;
@@ -7,6 +6,7 @@ GameState::GameState() {
     boardSizeWidth = 64;
     boardSizeHeight = 36;
     snake = new Snake(cellSize, boardSizeWidth, boardSizeHeight);
+
 }
 //--------------------------------------------------------------
 GameState::~GameState() {
@@ -20,13 +20,16 @@ void GameState::reset() {
         foodSpawned = false;
         std::cout << "Game reset" << std::endl;
         std::cout << paused << std::endl;
+        staticEntityVector.clear();
+        entityCount = 1;
+        tick = 0;
     }
     setFinished(false);
     setNextState("");
 }
 //--------------------------------------------------------------
 void GameState::update() {
-
+    tick++;
     if(snake->isCrashed()) {
         this->setNextState("looseState");
         this->setFinished(true);
@@ -44,6 +47,20 @@ void GameState::update() {
     if(ofGetFrameNum() % 10 == 0) {
         snake->update();
     }
+    if(tick % 300 == 0){
+        staticEntityVector.push_back(std::make_unique<staticEntity>(ofRandom(1, boardSizeWidth-1), ofRandom(1, boardSizeHeight-1), true, entityCount, ofColor(ofRandom(0,255), ofRandom(0,255), ofRandom(0,255))));
+        entityCount++;
+    }
+    for(unsigned int i = 0; i < staticEntityVector.size(); i++){
+        if(staticEntityVector[i]->collidesWith(snake->getHead()[0], snake->getHead()[1])){
+            snake->setCrashed(true);
+        }
+    }
+    if(tick % 1200 == 0){
+        staticEntityVector.erase(staticEntityVector.begin());
+    }
+
+
 
 }
 //--------------------------------------------------------------
@@ -52,6 +69,9 @@ void GameState::draw() {
     ofDrawBitmapString("Speed:" + ofToString(snake->getSpeed()), 10, 40);
     drawBoardGrid();
     snake->draw();
+    for (unsigned int i = 0; i < staticEntityVector.size(); i++){
+        staticEntityVector[i]->draw();
+    }
     drawFood();
 }
 //--------------------------------------------------------------
