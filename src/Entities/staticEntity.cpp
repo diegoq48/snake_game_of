@@ -5,7 +5,7 @@ staticEntity::staticEntity(int x, int y, bool deadly, int entityID, ofColor colo
     this->yPosition = y;
     this->isDeadly = deadly;
     this->entityID = entityID;
-    this->color = color;
+    this->color = ofColor::orange;
 }
 
 staticEntity::~staticEntity() {
@@ -16,29 +16,35 @@ void staticEntity::update() {
 
 }
 
-void staticEntity::draw() {
-    ofSetColor(this->color);
-    ofDrawRectangle(this->xPosition*25, this->yPosition*25, (25*entityID)%500 , (25*entityID)%500);
+void staticEntity::draw(std::vector<std::vector<int>> snakeBody) {
+    // Define a color for the rectangles
+    // Draw a rectangle for each entity
+    for(int i = 0; i < entityID; i++) {
+        // Ineffient but creates the old glitchy effect that we're looking for 
+        ofSetColor(ofColor(ofRandom(255), ofRandom(255), ofRandom(255)));
+        ofDrawRectangle((this->xPosition + i) * 25, this->yPosition * 25, 25, 25);
+    }
+    
+
+    // Check if the entity is in the snake body and update its deadly status
+    for(unsigned int i = 0; i < snakeBody.size(); i++) {
+        if(this->xPosition == snakeBody[i][0] && this->yPosition == snakeBody[i][1]) {
+            this->isDeadly = false;
+            return;
+        }
+    }
+    this->isDeadly = true;
 }
 
-bool staticEntity::collidesWith(int x, int y) {
-        //return (x < this->xPosition *25 + 25*entityID && x > this->xPosition *25 && y < this->yPosition *25 + 25*entityID && y > this->yPosition *25);
-    // return if the x and y are within the boundaries of the drawn rectangle
-    // print all of the variables being compared
-    std::cout << "x: " << x << std::endl;
-    std::cout << "y: " << y << std::endl;
-    std::cout << "xPosition: " << this->xPosition << std::endl;
-    std::cout << "yPosition: " << this->yPosition << std::endl;
-    std::cout << "entityID: " << this->entityID << std::endl;
 
-    int rectWidth = 25 * this->entityID % 500; // calculate the width of the rectangle
-    int rectHeight = 25 * this->entityID / 500 * 25; // calculate the height of the rectangle
-
-    if (x >= this->xPosition*25 && x <= this->xPosition*25 + rectWidth
-        && y >= this->yPosition*25 && y <= this->yPosition*25 + rectHeight) {
-        std::cout << "collides with" << std::endl;
-        return true;
+bool staticEntity::collidesWith(std::vector<std::vector<int>> snakeBody) {
+    // Check if the entity's position collides with any position in the snake's body
+    for (int i = this->xPosition; i < this->xPosition + this->entityID; i++) {
+        for (unsigned int j = 0; j < snakeBody.size(); j++) {
+            if (i == snakeBody[j][0] && this->yPosition == snakeBody[j][1]) {
+                return true;
+            }
+        }
     }
     return false;
-
-}   
+}

@@ -8,6 +8,7 @@ void ofApp::setup(){
     sound.setLoop(true);
     sound.setVolume(0.5);
     ofSetWindowTitle("Snake");
+    ofSetFrameRate(60);
 
     gameState = new GameState();
     menuState = new MenuState();

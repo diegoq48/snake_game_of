@@ -35,7 +35,13 @@ void GameState::update() {
         this->setFinished(true);
         return;
     }
-
+    for (auto it = staticEntityVector.begin(); it != staticEntityVector.end(); it++){
+        if((*it)->collidesWith(snake->getBody())) {
+            this->setNextState("looseState");
+            this->setFinished(true);
+            return;
+        }
+    }
     if(snake->getHead()[0] == currentFoodX && snake->getHead()[1] == currentFoodY) {
         snake->grow();
         snake->setScore(snake->getScore() + 10);
@@ -47,17 +53,38 @@ void GameState::update() {
     if(ofGetFrameNum() % 10 == 0) {
         snake->update();
     }
-    if(tick % 300 == 0){
+ /*    if(tick % 60 == 0){
+
         staticEntityVector.push_back(std::make_unique<staticEntity>(ofRandom(1, boardSizeWidth-1), ofRandom(1, boardSizeHeight-1), true, entityCount, ofColor(ofRandom(0,255), ofRandom(0,255), ofRandom(0,255))));
         entityCount++;
-    }
-    for(unsigned int i = 0; i < staticEntityVector.size(); i++){
-        if(staticEntityVector[i]->collidesWith(snake->getHead()[0], snake->getHead()[1])){
-            snake->setCrashed(true);
+    } */
+    if (tick % 60 == 0) {
+    // sets a boolian value to true by default 
+    bool isColliding = true;
+    while (isColliding) {
+        int x = ofRandom(1, boardSizeWidth - 1);
+        int y = ofRandom(1, boardSizeHeight - 1);
+        staticEntity newEntity(x, y, true, entityCount, ofColor(ofRandom(0, 255), ofRandom(0, 255), ofRandom(0, 255)));
+        isColliding = false;
+        
+        if (newEntity.collidesWith(snake->getBody())) {
+            isColliding = true;
+            break;
+        }
+        
+        if (!isColliding) {
+            staticEntityVector.push_back(std::make_unique<staticEntity>(newEntity));
+            entityCount++;
         }
     }
-    if(tick % 1200 == 0){
+}
+    if(tick % 120 == 0){
         staticEntityVector.erase(staticEntityVector.begin());
+        entityCount--;
+    }
+    if(tick % 2000 == 0){
+        staticEntityVector.erase(staticEntityVector.begin(), staticEntityVector.begin() + staticEntityVector.size()/2);
+        entityCount = entityCount/2;
     }
 
 
@@ -70,7 +97,7 @@ void GameState::draw() {
     drawBoardGrid();
     snake->draw();
     for (unsigned int i = 0; i < staticEntityVector.size(); i++){
-        staticEntityVector[i]->draw();
+        staticEntityVector[i]->draw(snake->getBody());
     }
     drawFood();
 }

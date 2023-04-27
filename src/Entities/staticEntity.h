@@ -1,4 +1,5 @@
 #include "entity.h"
+#include <vector>
 
 class staticEntity: public Entity {
     private:
@@ -11,7 +12,8 @@ class staticEntity: public Entity {
         staticEntity (int x, int y, bool deadly, int entityID, ofColor color);
         ~staticEntity();
         void update();
-        void draw();
-        bool collidesWith(int x, int y);
+        void draw(std::vector<std::vector<int>> snakeBody);
+        
+        bool collidesWith( std::vector<std::vector<int>> snakeBody);
 };
 
