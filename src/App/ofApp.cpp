@@ -1,7 +1,8 @@
 #include "ofApp.h"
 
 //--------------------------------------------------------------
-void ofApp::setup(){
+void ofApp::setup()
+{
     sound.stop();
     sound.load("music/karmaPolice.mp3");
     sound.play();
@@ -12,34 +13,46 @@ void ofApp::setup(){
 
     gameState = new GameState();
     menuState = new MenuState();
-    LooseState = new looseState();
+    loseState = new LoseState();
+    winState = new WinState();
     PauseState = new pauseState();
     currentState = menuState;
-
 }
 
 //--------------------------------------------------------------
-void ofApp::update(){
-    if(currentState->hasFinished()) {
-        if(currentState->getNextState() == "GameState") {
-            if(currentState == PauseState){
+void ofApp::update()
+{
+    if (currentState->hasFinished())
+    {
+        if (currentState->getNextState() == "GameState")
+        {
+            if (currentState == PauseState)
+            {
                 gameState->paused = true;
-                std::cout <<"paused" << std::endl;
+                std::cout << "paused" << std::endl;
             }
             gameState->reset();
             currentState = gameState;
             gameState->paused = false;
-
-        } else if(currentState->getNextState() == "MenuState") {
+        }
+        else if (currentState->getNextState() == "MenuState")
+        {
             menuState->reset();
             currentState = menuState;
         }
-        else if(currentState->getNextState() == "looseState"){
-            LooseState->reset();
-            currentState = LooseState;
-
+        else if (currentState->getNextState() == "LoseState")
+        {
+            loseState->reset();
+            currentState = loseState;
         }
-        else if(currentState->getNextState() == "pauseState"){
+        else if (currentState->getNextState() == "WinState")
+        {
+            gameState->paused = true;
+            winState->reset();
+            currentState = winState;
+        }
+        else if (currentState->getNextState() == "pauseState")
+        {
             PauseState->reset();
             currentState = PauseState;
         }
@@ -48,12 +61,14 @@ void ofApp::update(){
 }
 
 //--------------------------------------------------------------
-void ofApp::draw(){
+void ofApp::draw()
+{
     currentState->draw();
 }
 
 //--------------------------------------------------------------
-void ofApp::keyPressed(int key){
+void ofApp::keyPressed(int key)
+{
     currentState->keyPressed(key);
 }
 

@@ -4,35 +4,36 @@
 #include "State.h"
 #include "GameState.h"
 #include "MenuState.h"
-#include "looseState.h"
+#include "LoseState.h"
+#include "WinState.h"
 #include "pauseState.h"
 
-class ofApp : public ofBaseApp{
-	private:
-		ofSoundPlayer sound;
+class ofApp : public ofBaseApp
+{
+private:
+	ofSoundPlayer sound;
 
-	public:
-		void setup();
-		void update();
-		void draw();
+public:
+	void setup();
+	void update();
+	void draw();
 
-		void keyPressed(int key);
-		// void keyReleased(int key);
-		// void mouseMoved(int x, int y );
-		// void mouseDragged(int x, int y, int button);
-		// void mousePressed(int x, int y, int button);
-		// void mouseReleased(int x, int y, int button);
-		// void mouseEntered(int x, int y);
-		// void mouseExited(int x, int y);
-		// void windowResized(int w, int h);
-		// void dragEvent(ofDragInfo dragInfo);
-		// void gotMessage(ofMessage msg);
+	void keyPressed(int key);
+	// void keyReleased(int key);
+	// void mouseMoved(int x, int y );
+	// void mouseDragged(int x, int y, int button);
+	// void mousePressed(int x, int y, int button);
+	// void mouseReleased(int x, int y, int button);
+	// void mouseEntered(int x, int y);
+	// void mouseExited(int x, int y);
+	// void windowResized(int w, int h);
+	// void dragEvent(ofDragInfo dragInfo);
+	// void gotMessage(ofMessage msg);
 
-
-		State* currentState;
-		GameState* gameState;
-		MenuState* menuState;
-		looseState* LooseState;
-		pauseState* PauseState;
-		
+	State *currentState;
+	GameState *gameState;
+	MenuState *menuState;
+	LoseState *loseState;
+	WinState *winState;
+	pauseState *PauseState;
 };

@@ -3,14 +3,14 @@
 #include "State.h"
 #include "ofMain.h"
 
-class MenuState : public State
+class WinState : public State
 {
 private:
-    ofImage menu;
+    ofImage win;
 
 public:
-    MenuState();
-    ~MenuState();
+    WinState();
+    ~WinState();
     void reset();
     void update();
     void draw();

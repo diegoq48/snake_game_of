@@ -5,33 +5,37 @@
 #include "ofMain.h"
 #include "staticEntity.h"
 
+class GameState : public State
+{
+public:
+    GameState();
+    ~GameState();
+    void reset();
+    void update();
+    void draw();
+    void keyPressed(int key);
+    void foodSpawner();
+    void drawFood();
+    void drawStartScreen();
+    void drawLostScreen();
+    void drawBoardGrid();
 
-class GameState : public State {
-    public:
-        GameState();
-        ~GameState();
-        void reset();
-        void update();
-        void draw();
-        void keyPressed(int key);
-        void foodSpawner();
-        void drawFood();
-        void drawStartScreen();
-        void drawLostScreen();
-        void drawBoardGrid();
+    Snake *snake;
 
-        Snake* snake;
-        
-        bool foodSpawned = false;
+    bool foodSpawned = false;
 
-        int currentFoodX;
-        int currentFoodY;
+    int currentFoodX;
+    int currentFoodY;
 
-        int boardSizeWidth, boardSizeHeight;
-        int cellSize; // Pixels
-        bool paused = false;
-    private:
-        std::vector<std::unique_ptr<staticEntity>> staticEntityVector;
-        unsigned int tick = 0;
-        unsigned int entityCount = 1;
+    int boardSizeWidth, boardSizeHeight;
+    int cellSize; // Pixels
+    bool paused = false;
+
+private:
+    std::vector<std::unique_ptr<staticEntity>> staticEntityVector;
+    unsigned int tick = 0;
+    unsigned int entityCount = 1;
+    int goal = 50;
+    int getGoal() { return goal; };
+    void setGoal(int newGoal) { goal = newGoal; };
 };
