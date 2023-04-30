@@ -35,7 +35,4 @@ private:
     std::vector<std::unique_ptr<staticEntity>> staticEntityVector;
     unsigned int tick = 0;
     unsigned int entityCount = 1;
-    int goal = 50;
-    int getGoal() { return goal; };
-    void setGoal(int newGoal) { goal = newGoal; };
 };

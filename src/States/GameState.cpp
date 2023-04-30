@@ -103,18 +103,19 @@ void GameState::update()
         entityCount = entityCount / 2;
     }
     // win or continue
-    if (snake->getScore() >= goal)
+    if (snake->getScore() >= snake->getGoal())
     {
         setFinished(true);
         this->setNextState("WinState");
-        setGoal(getGoal() + 50);
+        snake->setGoal(snake->getGoal() + 50);
     }
 }
 //--------------------------------------------------------------
 void GameState::draw()
 {
     ofDrawBitmapString("Score:" + ofToString(snake->getScore()), 10, 20);
-    ofDrawBitmapString("Speed:" + ofToString(snake->getSpeed()), 10, 40);
+    ofDrawBitmapString("Goal:" + ofToString(snake->getGoal()), 10, 40);
+    ofDrawBitmapString("Speed:" + ofToString(snake->getSpeed()), 10, 60);
     drawBoardGrid();
     snake->draw();
     for (unsigned int i = 0; i < staticEntityVector.size(); i++)

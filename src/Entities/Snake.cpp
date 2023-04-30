@@ -9,6 +9,7 @@ Snake::Snake(int segmentSize, int boardSizeW, int boardSizeH)
     body.push_back({11, 9});
     this->speed = 1;
     this->score = 0;
+    this->goal = 50;
     this->direction = LEFT;
     this->crashed = false;
     this->segmentSize = segmentSize;
@@ -76,12 +77,12 @@ void Snake::draw()
     {
         int curX = this->body[i][0];
         int curY = this->body[i][1];
-        ofSetColor(ofColor::white);
+        ofSetColor(146, 159, 164);
         // draw the head red and the tail green
         if (i == 0)
-            ofSetColor(ofColor::red);
+            ofSetColor(154, 259, 131);
         if (i == body.size() - 1)
-            ofSetColor(ofColor::orange);
+            ofSetColor(171, 232, 252);
         ofDrawRectangle(curX * segmentSize, curY * segmentSize, segmentSize, segmentSize);
     }
 }

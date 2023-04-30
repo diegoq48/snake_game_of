@@ -37,6 +37,7 @@ void ofApp::update()
         }
         else if (currentState->getNextState() == "MenuState")
         {
+            gameState->paused = false;
             menuState->reset();
             currentState = menuState;
         }
