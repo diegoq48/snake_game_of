@@ -50,12 +50,33 @@ void GameState::update()
             return;
         }
     }
-    // for (auto &it : powerUps)
-    // {
-    //     if ((*it)->collidesWith(snake->getHead(), snake->getTail()))
-    //     {
-    //     }
-    // }
+    for (auto it = powerUps.begin(); it != powerUps.end(); it++)
+    {
+        if ((*it)->collidesWith(snake->getHead()[0], snake->getHead()[1]))
+        {
+            (*it)->applyPowerUp(this->snake);
+            // make a dynamic cast to check the type of the power-up and then make a switch 
+            // to check which power-up it is and then respawn it
+            switch ((*it)->getName())
+            {
+            case 0:
+                powerUps.push_back(std::make_unique<SpeedPowerUp>(ofRandom(1, boardSizeWidth - 1), ofRandom(1, boardSizeHeight - 1), 10));
+                break;
+            case 1:
+                powerUps.push_back(std::make_unique<BetterApple>(ofRandom(1, boardSizeWidth - 1), ofRandom(1, boardSizeHeight - 1), 10));
+                break;
+            case 2:
+                // god mode powerup 
+                powerUps.push_back(std::make_unique<GodMode>(ofRandom(1, boardSizeWidth - 1), ofRandom(1, boardSizeHeight - 1), 10));
+                break;
+            default:
+                break;
+            }
+
+            powerUps.erase(it);
+            break;
+        }
+    }
 
     if (snake->getHead()[0] == currentFoodX && snake->getHead()[1] == currentFoodY)
     {
