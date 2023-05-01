@@ -50,6 +50,13 @@ void GameState::update()
             return;
         }
     }
+    // for (auto &it : powerUps)
+    // {
+    //     if ((*it)->collidesWith(snake->getHead(), snake->getTail()))
+    //     {
+    //     }
+    // }
+
     if (snake->getHead()[0] == currentFoodX && snake->getHead()[1] == currentFoodY)
     {
         snake->grow();
@@ -59,6 +66,7 @@ void GameState::update()
     }
 
     foodSpawner();
+    PowerSpawner();
     if (ofGetFrameNum() % 10 == 0)
     {
         snake->update();
@@ -123,6 +131,7 @@ void GameState::draw()
         staticEntityVector[i]->draw(snake->getBody());
     }
     drawFood();
+    drawPower();
 }
 //--------------------------------------------------------------
 void GameState::keyPressed(int key)
@@ -196,6 +205,32 @@ void GameState::foodSpawner()
     }
 }
 //--------------------------------------------------------------
+void GameState::PowerSpawner()
+{
+
+    if (!PowerSpawned)
+    {
+        bool isInSnakeBody;
+        do
+        {
+            isInSnakeBody = false;
+
+            powerUps.push_back(std::make_unique<SpeedPowerUp>(ofRandom(1, boardSizeWidth - 1), ofRandom(1, boardSizeHeight - 1), 300));
+            powerUps.push_back(std::make_unique<BetterApple>(ofRandom(1, boardSizeWidth - 1), ofRandom(1, boardSizeHeight - 1), 300));
+            powerUps.push_back(std::make_unique<GodMode>(ofRandom(1, boardSizeWidth - 1), ofRandom(1, boardSizeHeight - 1), 300));
+
+            for (unsigned int i = 0; i < snake->getBody().size(); i++)
+            {
+                if (currentPowerX == snake->getBody()[i][0] and currentPowerY == snake->getBody()[i][1])
+                {
+                    isInSnakeBody = true;
+                }
+            }
+        } while (isInSnakeBody);
+        PowerSpawned = true;
+    }
+}
+//--------------------------------------------------------------
 void GameState::drawFood()
 {
     ofSetColor(ofColor::red);
@@ -205,26 +240,15 @@ void GameState::drawFood()
     }
 }
 //--------------------------------------------------------------
-void GameState::drawStartScreen()
+void GameState::drawPower()
 {
-    ofSetColor(ofColor::black);
-    ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
-    ofSetColor(ofColor::white);
-    string text = "Press any arrow key to start.";
-    ofDrawBitmapString(text, ofGetWidth() / 2 - 8 * text.length() / 2, ofGetHeight() / 2 - 11);
-    return;
-}
-//--------------------------------------------------------------
-void GameState::drawLostScreen()
-{
-    ofSetColor(ofColor::black);
-    ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
-    ofSetColor(ofColor::white);
-    string text = "You lost! Press any arrow key to play again";
-    string text2 = "or press ESC to exit.";
-    ofDrawBitmapString(text, ofGetWidth() / 2 - 8 * text.length() / 2, ofGetHeight() / 2 - 11);
-    ofDrawBitmapString(text2, ofGetWidth() / 2 - 8 * text2.length() / 2, ofGetHeight() / 2 + 2);
-    return;
+    if (PowerSpawned)
+    {
+        for (const auto &powerUp : powerUps)
+        {
+            powerUp->draw();
+        }
+    }
 }
 //--------------------------------------------------------------
 void GameState::drawBoardGrid()
