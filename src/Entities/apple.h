@@ -11,4 +11,7 @@ public:
     void draw(std::vector<std::vector<int>> snakeBody);
     ~apple();
     bool collidesWith(std::vector<std::vector<int>> snakeBody);
+    int getX(){ return x; };
+    int getY(){ return y; };
+    
 };

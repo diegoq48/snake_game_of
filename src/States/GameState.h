@@ -4,6 +4,7 @@
 #include "Snake.h"
 #include "ofMain.h"
 #include "PowerUps.h"
+#include <memory> 
 #include "apple.h"
 #include "search_traversal.h"
 
@@ -19,6 +20,7 @@ public:
     void PowerSpawner();
     void drawPower();
     void drawStartScreen();
+    void keyReleased(int key);
     void drawLostScreen();
     void drawBoardGrid();
 
@@ -41,6 +43,8 @@ public:
 
 private:
     std::vector<std::unique_ptr<staticEntity>> staticEntityVector;
+    //make a sharedPtr of type search_traversal
+    std::shared_ptr<searchAlgorithm> search;
     //int foodSpawnRate = ofGetTimeMillis() + 5000;
 
     std::vector<std::unique_ptr<PowerUp>> powerUps;
@@ -48,8 +52,5 @@ private:
     unsigned int tick = 0;
     unsigned int entityCount = 1;
     std::vector<std::vector<int>> lastBody;
-    int appleColorTick = 0; // Used to change the color of the apple
-    unsigned int foodSpawnTime = 0;
-   unsigned int foodAge = 0;
 
 };

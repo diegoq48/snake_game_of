@@ -1,8 +1,8 @@
 #include "search_traversal.h"
 
-namespace search_traversal {
 
-std::vector<std::pair<int, int>> reconstruct_path(std::map<std::pair<int, int>, std::pair<int, int>> &parent, std::pair<int, int> start, std::pair<int, int> current) {
+
+std::vector<std::pair<int, int>> searchAlgorithm::reconstruct_path(std::map<std::pair<int, int>, std::pair<int, int>> &parent, std::pair<int, int> start, std::pair<int, int> current) {
     if (current == start) {
         return {start};
     }
@@ -11,7 +11,7 @@ std::vector<std::pair<int, int>> reconstruct_path(std::map<std::pair<int, int>, 
     return path;
 }
 
-std::pair<std::vector<std::pair<int, int>>, int> recursive_bfs(std::vector<std::vector<int>> &grid, std::pair<int, int> start, std::pair<int, int> destination, std::queue<std::tuple<int, int, int>> &queue, std::set<std::pair<int, int>> &visited, std::map<std::pair<int, int>, std::pair<int, int>> &parent) {
+std::pair<std::vector<std::pair<int, int>>, int> searchAlgorithm::recursive_bfs(std::vector<std::vector<int>> &grid, std::pair<int, int> start, std::pair<int, int> destination, std::queue<std::tuple<int, int, int>> &queue, std::set<std::pair<int, int>> &visited, std::map<std::pair<int, int>, std::pair<int, int>> &parent) {
     if (queue.empty()) {
         return {{}, -1};
     }
@@ -42,8 +42,8 @@ std::pair<std::vector<std::pair<int, int>>, int> recursive_bfs(std::vector<std::
     return recursive_bfs(grid, start, destination, queue, visited, parent);
 }
 
-std::pair<std::vector<std::pair<int, int>>, int> iterative_bfs(const std::vector<std::vector<int>>& grid,
-        const std::pair<int, int>& start, const std::pair<int, int>& destination) {
+std::pair<std::vector<std::pair<int, int>>, int> searchAlgorithm::iterative_bfs(const std::vector<std::vector<int>>& grid,
+    const std::pair<int, int>& start, const std::pair<int, int>& destination) {
     std::queue<std::tuple<int, int, int>> queue;
     std::set<std::pair<int, int>> visited;
     std::map<std::pair<int, int>, std::pair<int, int>> parent;
@@ -84,7 +84,7 @@ std::pair<std::vector<std::pair<int, int>>, int> iterative_bfs(const std::vector
 }
 
 
-std::vector<std::vector<int>> createGrid(int width, int height){
+std::vector<std::vector<int>> searchAlgorithm::createGrid(int width, int height){
     std::vector<std::vector<int>> grid;
     // Initialize grid with 0's
     for (int i = 0; i < height; i++){
@@ -97,7 +97,7 @@ std::vector<std::vector<int>> createGrid(int width, int height){
     return grid;
 }
 
-void updateGrid(std::vector<std::vector<int>> &grid,  std::vector<std::vector<int>> obstacles, const int value ){
+void searchAlgorithm::updateGrid(std::vector<std::vector<int>> &grid,  std::vector<std::vector<int>> obstacles, const int value ){
     // Set snake body to 1's
     // inverse x and y in obstacles
     for (int i = 0; i < obstacles.size(); i++){
@@ -113,8 +113,11 @@ void updateGrid(std::vector<std::vector<int>> &grid,  std::vector<std::vector<in
     }
 }
 
-void updateGrid(std::vector<std::vector<int>> &grid, const int x, const int y, const int value){
+void searchAlgorithm::updateGrid(std::vector<std::vector<int>> &grid, const int x, const int y, const int value){
     // Set snake body to 1's
+        std::cout << "Grid max x: " << grid.size() << " Grid max y: " << grid[0].size() << std::endl;
+        std::cout << "x: " << x << " y: " << y << std::endl;
+
         if (x < 0 || x >= grid.size() || y < 0 || y >= grid[0].size()){
             std::cout << "Out of bounds" << std::endl;
             return;
@@ -122,7 +125,7 @@ void updateGrid(std::vector<std::vector<int>> &grid, const int x, const int y, c
         grid[x][y] = value;
 }
 
-}
+
 
 
 
