@@ -16,6 +16,7 @@ public:
     void foodSpawner();
     void drawFood();
     void drawStartScreen();
+    void mousePressed(int x, int y, int button);
     void drawLostScreen();
     void drawBoardGrid();
 };
