@@ -37,3 +37,6 @@ bool apple::collidesWith(std::vector<std::vector<int>> snakeBody)
     // Check if the entity's position collides with any position in the snake's body
     return (this->x == snakeBody[0][0] && this->y == snakeBody[0][1]);
 }
+apple::~apple(){
+    std::cout << "apple deleted" << std::endl;
+}
