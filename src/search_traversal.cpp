@@ -100,6 +100,7 @@ std::vector<std::vector<int>> searchAlgorithm::createGrid(int width, int height)
 void searchAlgorithm::updateGrid(std::vector<std::vector<int>> &grid,  std::vector<std::vector<int>> obstacles, const int value ){
     // Set snake body to 1's
     // inverse x and y in obstacles
+
     for (int i = 0; i < obstacles.size(); i++){
         int temp = obstacles[i][0];
         obstacles[i][0] = obstacles[i][1];
@@ -108,6 +109,11 @@ void searchAlgorithm::updateGrid(std::vector<std::vector<int>> &grid,  std::vect
     
 
     for (int i = 0; i < obstacles.size(); i++){
+        // check if items is out of bounds of grid
+        if (obstacles[i][0] < 0 || obstacles[i][0] >= grid.size() || obstacles[i][1] < 0 || obstacles[i][1] >= grid[0].size()){
+            std::cout << "Out of bounds" << std::endl;
+            continue;
+        }
 
         grid[obstacles[i][0]][obstacles[i][1]] = value;
     }
