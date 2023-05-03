@@ -3,8 +3,8 @@
 #include "State.h"
 #include "Snake.h"
 #include "ofMain.h"
-#include "staticEntity.h"
 #include "PowerUps.h"
+#include "apple.h"
 #include "search_traversal.h"
 
 class GameState : public State
@@ -16,9 +16,7 @@ public:
     void update();
     void draw();
     void keyPressed(int key);
-    void foodSpawner();
     void PowerSpawner();
-    void drawFood();
     void drawPower();
     void drawStartScreen();
     void drawLostScreen();

@@ -35,6 +35,10 @@ void GameState::reset()
 //--------------------------------------------------------------
 void GameState::update()
 {
+    if (!foodSpawned){
+        staticEntityVector.push_back(std::make_unique<apple>(cellSize));
+        foodSpawned = true;
+    }
     tick++;
     this->lastBody = snake->getBody();
     if (snake->isCrashed())
@@ -47,9 +51,17 @@ void GameState::update()
     {
         if ((*it)->collidesWith(snake->getBody()))
         {
-            this->setNextState("LoseState");
-            this->setFinished(true);
+            if(dynamic_cast<apple*>(it->get()) != nullptr)
+            {
+                snake->grow();
+                foodSpawned = false;
+                staticEntityVector.erase(it);
+                break;
+            }
+            else{
+            snake->setCrashed(true);
             return;
+            }
         }
     }
     for (auto it = powerUps.begin(); it != powerUps.end(); it++)
@@ -88,8 +100,7 @@ void GameState::update()
         foodSpawned = false;
     }
 
-    foodSpawner();
-    PowerSpawner();
+    
     if (ofGetFrameNum() % 10 == 0)
     {
         snake->update();
@@ -133,20 +144,34 @@ void GameState::update()
     }
     if (tick % 120 == 0)
     {
+        if (dynamic_cast<apple *>(staticEntityVector[0].get()))
+        {
+            staticEntityVector.erase(staticEntityVector.begin()+1);
+        }
+        else{
         staticEntityVector.erase(staticEntityVector.begin());
+        }
         entityCount--;
     }
-    if (tick % 2000 == 0)
-    {
-        staticEntityVector.erase(staticEntityVector.begin(), staticEntityVector.begin() + staticEntityVector.size() / 2);
-        entityCount = entityCount / 2;
-    }
+
     // win or continue
     if (snake->getScore() >= snake->getGoal())
     {
         setFinished(true);
         this->setNextState("WinState");
         snake->setGoal(snake->getGoal() + 50);
+    }
+    if (tick % 900 == 0)
+    {
+        //find and delete the apple 
+        for (auto it = staticEntityVector.begin(); it != staticEntityVector.end(); it++)
+        {
+            if (dynamic_cast<apple *>(it->get()))
+            {
+                staticEntityVector.erase(it);
+                break;
+            }
+        }
     }
     
 }
@@ -205,13 +230,6 @@ void GameState::draw()
     {
         staticEntityVector[i]->draw(snake->getBody());
     }
-    if (foodSpawned)
-    {
-        ofSetColor(ofColor(255 - foodAge / 2, 255 - foodAge / 4, 0));
-        ofDrawRectangle(currentFoodX * cellSize, currentFoodY * cellSize, cellSize, cellSize);
-        foodAge++;
-    }
-
     drawPower();
     if(spacePressed){
         drawShortestPath();
@@ -275,24 +293,7 @@ void GameState::keyPressed(int key)
     }
 }
 //--------------------------------------------------------------
-void GameState::foodSpawner()
-{
-    if (!foodSpawned)
-    {
-        currentFoodX = ofRandom(1, boardSizeWidth - 1);
-        currentFoodY = ofRandom(1, boardSizeHeight - 1);
-        foodSpawned = true;
-        foodSpawnTime = tick;
-    }
-    else if (tick - foodSpawnTime > 30 * 60)
-    {
-        despawnFood();
-        currentFoodX = ofRandom(1, boardSizeWidth - 1);
-        currentFoodY = ofRandom(1, boardSizeHeight - 1);
-        foodSpawnTime = tick;
-        foodSpawned = true;
-    }
-}
+
 //--------------------------------------------------------------
 void GameState::PowerSpawner()
 {
@@ -320,53 +321,6 @@ void GameState::PowerSpawner()
     }
 }
 //--------------------------------------------------------------
-/* void GameState::drawFood()
-{
-    if (foodSpawned)
-    {
-        // Calculate the elapsed time since the apple was spawned in seconds
-        float elapsedTime = float(ofGetElapsedTimeMillis() - appleColorTick) / 1000.0f;
-        
-        // Calculate the amount of time needed to turn the apple fully brown
-        float timeToTurnBrown = 30.0f; // in seconds
-        
-        // Calculate the current "brownness" of the apple as a value between 0 and 1
-        float brownness = ofClamp(elapsedTime / timeToTurnBrown, 0.0f, 1.0f);
-        
-        // Calculate the red and green color values for the apple based on the current "brownness"
-        int r = int(ofLerp(255, 102, brownness));
-        int g = int(ofLerp(0, 51, brownness));
-        
-        // Set the color of the apple based on the current "brownness"
-        ofSetColor(r, g, 0);
-        
-        // Draw the apple
-        ofDrawRectangle(currentFoodX * cellSize, currentFoodY * cellSize, cellSize, cellSize);
-        appleColorTick++;
-        if (appleColorTick > 1800){
-            foodSpawned = false;
-        
-        }
-        return;
-    }
-} */
-
-void GameState::drawFood()
-{
-    if (foodSpawned)
-    {
-        // check if food has been spawned for more than 30 seconds
-        int timeElapsed = ofGetElapsedTimeMillis() - foodSpawnTime;
-        if (timeElapsed >= 30000) {
-            foodSpawned = false;
-            return;
-        }
-
-        ofSetColor(255, 0, 0); // set color to red
-        ofDrawRectangle(currentFoodX * cellSize, currentFoodY * cellSize, cellSize, cellSize);
-    }
-}
-
 
 //--------------------------------------------------------------
 void GameState::drawPower()
@@ -392,9 +346,4 @@ void GameState::drawBoardGrid()
     // }
 }
 //--------------------------------------------------------------
-void GameState::despawnFood()
-{
-    search_traversal::updateGrid(globalGrid, currentFoodX, currentFoodY, 0);
-    foodSpawned = false;
-    foodAge = 0;
-}
+
