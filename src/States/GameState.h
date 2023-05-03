@@ -3,8 +3,8 @@
 #include "State.h"
 #include "Snake.h"
 #include "ofMain.h"
-#include "staticEntity.h"
 #include "PowerUps.h"
+#include "apple.h"
 
 class GameState : public State
 {
@@ -15,9 +15,7 @@ public:
     void update();
     void draw();
     void keyPressed(int key);
-    void foodSpawner();
     void PowerSpawner();
-    void drawFood();
     void drawPower();
     void drawStartScreen();
     void drawLostScreen();
@@ -43,4 +41,5 @@ private:
 
     unsigned int tick = 0;
     unsigned int entityCount = 1;
+    bool rottedFood = false;
 };

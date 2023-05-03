@@ -34,6 +34,10 @@ void GameState::reset()
 //--------------------------------------------------------------
 void GameState::update()
 {
+    if (!foodSpawned){
+        staticEntityVector.push_back(std::make_unique<apple>(cellSize));
+        foodSpawned = true;
+    }
     tick++;
     if (snake->isCrashed())
     {
@@ -45,9 +49,17 @@ void GameState::update()
     {
         if ((*it)->collidesWith(snake->getBody()))
         {
-            this->setNextState("LoseState");
-            this->setFinished(true);
+            if(dynamic_cast<apple*>(it->get()) != nullptr)
+            {
+                snake->grow();
+                foodSpawned = false;
+                staticEntityVector.erase(it);
+                break;
+            }
+            else{
+            snake->setCrashed(true);
             return;
+            }
         }
     }
     for (auto it = powerUps.begin(); it != powerUps.end(); it++)
@@ -86,8 +98,7 @@ void GameState::update()
         foodSpawned = false;
     }
 
-    foodSpawner();
-    PowerSpawner();
+    
     if (ofGetFrameNum() % 10 == 0)
     {
         snake->update();
@@ -123,20 +134,34 @@ void GameState::update()
     }
     if (tick % 120 == 0)
     {
+        if (dynamic_cast<apple *>(staticEntityVector[0].get()))
+        {
+            staticEntityVector.erase(staticEntityVector.begin()+1);
+        }
+        else{
         staticEntityVector.erase(staticEntityVector.begin());
+        }
         entityCount--;
     }
-    if (tick % 2000 == 0)
-    {
-        staticEntityVector.erase(staticEntityVector.begin(), staticEntityVector.begin() + staticEntityVector.size() / 2);
-        entityCount = entityCount / 2;
-    }
+
     // win or continue
     if (snake->getScore() >= snake->getGoal())
     {
         setFinished(true);
         this->setNextState("WinState");
         snake->setGoal(snake->getGoal() + 50);
+    }
+    if (tick % 900 == 0)
+    {
+        //find and delete the apple 
+        for (auto it = staticEntityVector.begin(); it != staticEntityVector.end(); it++)
+        {
+            if (dynamic_cast<apple *>(it->get()))
+            {
+                staticEntityVector.erase(it);
+                break;
+            }
+        }
     }
 }
 //--------------------------------------------------------------
@@ -151,7 +176,6 @@ void GameState::draw()
     {
         staticEntityVector[i]->draw(snake->getBody());
     }
-    drawFood();
     drawPower();
 }
 //--------------------------------------------------------------
@@ -204,27 +228,7 @@ void GameState::keyPressed(int key)
     }
 }
 //--------------------------------------------------------------
-void GameState::foodSpawner()
-{
-    if (!foodSpawned)
-    {
-        bool isInSnakeBody;
-        do
-        {
-            isInSnakeBody = false;
-            currentFoodX = ofRandom(1, boardSizeWidth - 1);
-            currentFoodY = ofRandom(1, boardSizeHeight - 1);
-            for (unsigned int i = 0; i < snake->getBody().size(); i++)
-            {
-                if (currentFoodX == snake->getBody()[i][0] and currentFoodY == snake->getBody()[i][1])
-                {
-                    isInSnakeBody = true;
-                }
-            }
-        } while (isInSnakeBody);
-        foodSpawned = true;
-    }
-}
+
 //--------------------------------------------------------------
 void GameState::PowerSpawner()
 {
@@ -252,14 +256,7 @@ void GameState::PowerSpawner()
     }
 }
 //--------------------------------------------------------------
-void GameState::drawFood()
-{
-    ofSetColor(ofColor::red);
-    if (foodSpawned)
-    {
-        ofDrawRectangle(currentFoodX * cellSize, currentFoodY * cellSize, cellSize, cellSize);
-    }
-}
+
 //--------------------------------------------------------------
 void GameState::drawPower()
 {
@@ -284,3 +281,4 @@ void GameState::drawBoardGrid()
     // }
 }
 //--------------------------------------------------------------
+
