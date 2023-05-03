@@ -7,6 +7,7 @@ GameState::GameState()
     boardSizeWidth = 64;
     boardSizeHeight = 36;
     snake = new Snake(cellSize, boardSizeWidth, boardSizeHeight);
+    globalGrid = search_traversal::createGrid(boardSizeWidth, boardSizeHeight);
 }
 //--------------------------------------------------------------
 GameState::~GameState()
@@ -35,6 +36,7 @@ void GameState::reset()
 void GameState::update()
 {
     tick++;
+    this->lastBody = snake->getBody();
     if (snake->isCrashed())
     {
         this->setNextState("LoseState");
@@ -91,6 +93,8 @@ void GameState::update()
     if (ofGetFrameNum() % 10 == 0)
     {
         snake->update();
+        // create a unique pointer to the global grid 
+        search_traversal::updateGrid(globalGrid, snake->getBody(), 1);
     }
     /*    if(tick % 60 == 0){
 
@@ -107,6 +111,12 @@ void GameState::update()
             int y = ofRandom(1, boardSizeHeight - 1);
             staticEntity newEntity(x, y, true, entityCount, ofColor(ofRandom(0, 255), ofRandom(0, 255), ofRandom(0, 255)));
             isColliding = false;
+            for(int i=0; i < newEntity.getID(); i++){
+                if (newEntity.getX() + i >= boardSizeWidth-1){break;}
+                if (newEntity.getY() >= boardSizeHeight-1){break;}
+                search_traversal::updateGrid(globalGrid, newEntity.getX() + i,newEntity.getY(), 1);
+            }
+
 
             if (newEntity.collidesWith(snake->getBody()))
             {
@@ -138,7 +148,51 @@ void GameState::update()
         this->setNextState("WinState");
         snake->setGoal(snake->getGoal() + 50);
     }
+    
 }
+
+void GameState::drawShortestPath(){
+    search_traversal::updateGrid(globalGrid, lastBody,0);
+    std::pair<int, int> head = {snake->getHead()[0], snake->getHead()[1]};
+    // vector<int> head = this->getHead();
+    std::pair<int, int> food = {currentFoodX,currentFoodY };
+    // initialized current grid
+    // The segmentation fault is here
+    // vector<vector<int>> grid = search_traversal::createGrid( this->boardSizeHeight,this->boardSizeWidth);
+    search_traversal::updateGrid(globalGrid, snake->getBody(), 1);
+    // draw the grid 
+    
+    this->lastBody = snake->getBody();
+
+
+
+    std::queue<std::tuple<int, int, int>> queue;
+    queue.push({head.first, head.second, 0});
+    std::set<std::pair<int, int>> visited = {head};
+    std::map<std::pair<int, int>, std::pair<int, int>> parent = {{head, {}}};
+
+    auto [path, steps] = search_traversal::recursive_bfs(globalGrid, head, food, queue, visited, parent);
+    // auto [path, steps] = search_traversal::iterative_bfs(grid, head, food);
+
+    //Reset again grid
+    search_traversal::updateGrid(globalGrid, lastBody,0);
+    ofSetColor(ofColor::blue);
+    // print the 2d path vector the 0's and 1's
+    std::cout << "Path: " << std::endl;
+    for(int i=0; i < path.size(); i++){
+        cout << path[i].first << " " << path[i].second << endl;
+    }
+    
+    for(auto& e:path){
+       // if (e.first == head.first && e.second == head.second){continue;}
+        // check if the path is covering the apple 
+        ofDrawRectangle(e.first*cellSize, e.second*cellSize, cellSize, cellSize);
+    }
+
+
+}
+
+
 //--------------------------------------------------------------
 void GameState::draw()
 {
@@ -151,8 +205,17 @@ void GameState::draw()
     {
         staticEntityVector[i]->draw(snake->getBody());
     }
-    drawFood();
+    if (foodSpawned)
+    {
+        ofSetColor(ofColor(255 - foodAge / 2, 255 - foodAge / 4, 0));
+        ofDrawRectangle(currentFoodX * cellSize, currentFoodY * cellSize, cellSize, cellSize);
+        foodAge++;
+    }
+
     drawPower();
+    if(spacePressed){
+        drawShortestPath();
+    }
 }
 //--------------------------------------------------------------
 void GameState::keyPressed(int key)
@@ -162,6 +225,14 @@ void GameState::keyPressed(int key)
 
     switch (key)
     {
+    case 'e':
+        if(spacePressed){
+            spacePressed = false;
+        }
+        else{
+            spacePressed = true;
+        }
+        break;
     case OF_KEY_LEFT:
         snake->changeDirection(LEFT);
         break;
@@ -208,20 +279,17 @@ void GameState::foodSpawner()
 {
     if (!foodSpawned)
     {
-        bool isInSnakeBody;
-        do
-        {
-            isInSnakeBody = false;
-            currentFoodX = ofRandom(1, boardSizeWidth - 1);
-            currentFoodY = ofRandom(1, boardSizeHeight - 1);
-            for (unsigned int i = 0; i < snake->getBody().size(); i++)
-            {
-                if (currentFoodX == snake->getBody()[i][0] and currentFoodY == snake->getBody()[i][1])
-                {
-                    isInSnakeBody = true;
-                }
-            }
-        } while (isInSnakeBody);
+        currentFoodX = ofRandom(1, boardSizeWidth - 1);
+        currentFoodY = ofRandom(1, boardSizeHeight - 1);
+        foodSpawned = true;
+        foodSpawnTime = tick;
+    }
+    else if (tick - foodSpawnTime > 30 * 60)
+    {
+        despawnFood();
+        currentFoodX = ofRandom(1, boardSizeWidth - 1);
+        currentFoodY = ofRandom(1, boardSizeHeight - 1);
+        foodSpawnTime = tick;
         foodSpawned = true;
     }
 }
@@ -252,14 +320,54 @@ void GameState::PowerSpawner()
     }
 }
 //--------------------------------------------------------------
-void GameState::drawFood()
+/* void GameState::drawFood()
 {
-    ofSetColor(ofColor::red);
     if (foodSpawned)
     {
+        // Calculate the elapsed time since the apple was spawned in seconds
+        float elapsedTime = float(ofGetElapsedTimeMillis() - appleColorTick) / 1000.0f;
+        
+        // Calculate the amount of time needed to turn the apple fully brown
+        float timeToTurnBrown = 30.0f; // in seconds
+        
+        // Calculate the current "brownness" of the apple as a value between 0 and 1
+        float brownness = ofClamp(elapsedTime / timeToTurnBrown, 0.0f, 1.0f);
+        
+        // Calculate the red and green color values for the apple based on the current "brownness"
+        int r = int(ofLerp(255, 102, brownness));
+        int g = int(ofLerp(0, 51, brownness));
+        
+        // Set the color of the apple based on the current "brownness"
+        ofSetColor(r, g, 0);
+        
+        // Draw the apple
+        ofDrawRectangle(currentFoodX * cellSize, currentFoodY * cellSize, cellSize, cellSize);
+        appleColorTick++;
+        if (appleColorTick > 1800){
+            foodSpawned = false;
+        
+        }
+        return;
+    }
+} */
+
+void GameState::drawFood()
+{
+    if (foodSpawned)
+    {
+        // check if food has been spawned for more than 30 seconds
+        int timeElapsed = ofGetElapsedTimeMillis() - foodSpawnTime;
+        if (timeElapsed >= 30000) {
+            foodSpawned = false;
+            return;
+        }
+
+        ofSetColor(255, 0, 0); // set color to red
         ofDrawRectangle(currentFoodX * cellSize, currentFoodY * cellSize, cellSize, cellSize);
     }
 }
+
+
 //--------------------------------------------------------------
 void GameState::drawPower()
 {
@@ -284,3 +392,9 @@ void GameState::drawBoardGrid()
     // }
 }
 //--------------------------------------------------------------
+void GameState::despawnFood()
+{
+    search_traversal::updateGrid(globalGrid, currentFoodX, currentFoodY, 0);
+    foodSpawned = false;
+    foodAge = 0;
+}

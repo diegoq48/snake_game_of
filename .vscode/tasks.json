@@ -6,7 +6,7 @@
             "type": "shell",
             "command": "make",
             "args": [
-                "-j6",
+                "-j6"
             ],
             "presentation": {
                 "reveal": "always"
@@ -14,6 +14,17 @@
             "problemMatcher": [
                 "$gcc"
             ]
+        },
+        {
+            "type": "cmake",
+            "label": "CMake: build",
+            "command": "build",
+            "targets": [
+                ""
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "detail": "CMake template build task"
         }
     ]
 }

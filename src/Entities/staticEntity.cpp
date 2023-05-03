@@ -48,3 +48,4 @@ bool staticEntity::collidesWith(std::vector<std::vector<int>> snakeBody) {
     }
     return false;
 }
+

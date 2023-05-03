@@ -5,8 +5,6 @@ PowerUp::PowerUp(int x, int y, int duration_)
 
 bool PowerUp::collidesWith(int x, int y)
 {
-    std::cout << this->x << " " << this->y << std::endl;
-    std::cout << x << " " << y << std::endl;
     return (this->x == x && this->y == y);
 }
 
