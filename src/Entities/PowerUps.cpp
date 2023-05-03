@@ -13,7 +13,7 @@ SpeedPowerUp::SpeedPowerUp(int x, int y, int duration_)
 
 void SpeedPowerUp::applyPowerUp(Snake *snake)
 {
-    snake->setSpeed(snake->getSpeed() + 1);
+    snake->setSpeed(snake->getSpeed() + 5);
 }
 
 void SpeedPowerUp::draw()

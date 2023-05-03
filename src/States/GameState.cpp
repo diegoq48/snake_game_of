@@ -37,44 +37,49 @@ void GameState::reset()
 void GameState::update()
 {
     tick++;
-    //checks if the snake has crashed if so it ends the game
+    // checks if the snake has crashed if so it ends the game
     if (snake->isCrashed())
     {
         this->setNextState("LoseState");
         this->setFinished(true);
         return;
     }
-    //creates an apple object to be displayed on the screen and assigns currentFoodX and currentFoodY to the apple's x and y
-    if (!foodSpawned){
+    // creates an apple object to be displayed on the screen and assigns currentFoodX and currentFoodY to the apple's x and y
+    if (!foodSpawned)
+    {
         staticEntityVector.push_back(std::make_unique<apple>(cellSize));
-        for (auto& entity : staticEntityVector) {
-        apple* applePtr = dynamic_cast<apple*>(entity.get());
-        if (applePtr != nullptr) {
-            currentFoodX = applePtr->getX();
-            currentFoodY = applePtr->getY();
-            break;
+        for (auto &entity : staticEntityVector)
+        {
+            apple *applePtr = dynamic_cast<apple *>(entity.get());
+            if (applePtr != nullptr)
+            {
+                currentFoodX = applePtr->getX();
+                currentFoodY = applePtr->getY();
+                break;
+            }
         }
-    }
         foodSpawned = true;
     }
     // updates the lastBody position of the snake
     this->lastBody = snake->getBody();
-   
+
     // itterates through all of the static entities in the game and checks if the snake has collided with any of them calling their respective collidesWith functions
     for (auto it = staticEntityVector.begin(); it != staticEntityVector.end(); it++)
     {
         if ((*it)->collidesWith(snake->getBody()))
         {
-            if(dynamic_cast<apple*>(it->get()) != nullptr)
+            if (dynamic_cast<apple *>(it->get()) != nullptr)
             {
                 snake->grow();
+                snake->setScore(snake->getScore() + 10);
                 foodSpawned = false;
                 staticEntityVector.erase(it);
                 break;
             }
-            else{
-            snake->setCrashed(true);
-            return;
+            else
+            {
+                snake->setCrashed(true);
+                return;
             }
         }
     }
@@ -84,7 +89,7 @@ void GameState::update()
         if ((*it)->collidesWith(snake->getHead()[0], snake->getHead()[1]))
         {
             (*it)->applyPowerUp(this->snake);
-            // make a dynamic cast to check the type of the power-up and then make a switch 
+            // make a dynamic cast to check the type of the power-up and then make a switch
             // to check which power-up it is and then respawn it
             switch ((*it)->getName())
             {
@@ -95,18 +100,16 @@ void GameState::update()
                 powerUps.push_back(std::make_unique<BetterApple>(ofRandom(1, boardSizeWidth - 1), ofRandom(1, boardSizeHeight - 1), 10));
                 break;
             case 2:
-                // god mode powerup 
                 powerUps.push_back(std::make_unique<GodMode>(ofRandom(1, boardSizeWidth - 1), ofRandom(1, boardSizeHeight - 1), 10));
                 break;
             default:
                 break;
             }
-
             powerUps.erase(it);
             break;
         }
     }
-
+    PowerSpawner();
     // moves the snake every 10 frames
     if (ofGetFrameNum() % 10 == 0)
     {
@@ -124,12 +127,18 @@ void GameState::update()
             int y = ofRandom(1, boardSizeHeight - 1);
             staticEntity newEntity(x, y, true, entityCount, ofColor(ofRandom(0, 255), ofRandom(0, 255), ofRandom(0, 255)));
             isColliding = false;
-            for(int i=0; i < newEntity.getID(); i++){
-                if (newEntity.getX() + i >= boardSizeWidth-1){break;}
-                if (newEntity.getY() >= boardSizeHeight-1){break;}
-                search->updateGrid(globalGrid, newEntity.getX() + i,newEntity.getY(), 1);
+            for (int i = 0; i < newEntity.getID(); i++)
+            {
+                if (newEntity.getX() + i >= boardSizeWidth - 1)
+                {
+                    break;
+                }
+                if (newEntity.getY() >= boardSizeHeight - 1)
+                {
+                    break;
+                }
+                search->updateGrid(globalGrid, newEntity.getX() + i, newEntity.getY(), 1);
             }
-
 
             if (newEntity.collidesWith(snake->getBody()))
             {
@@ -151,10 +160,11 @@ void GameState::update()
     {
         if (dynamic_cast<apple *>(staticEntityVector[0].get()))
         {
-            staticEntityVector.erase(staticEntityVector.begin()+1);
+            staticEntityVector.erase(staticEntityVector.begin() + 1);
         }
-        else{
-        staticEntityVector.erase(staticEntityVector.begin());
+        else
+        {
+            staticEntityVector.erase(staticEntityVector.begin());
         }
         entityCount--;
     }
@@ -164,12 +174,12 @@ void GameState::update()
     {
         setFinished(true);
         this->setNextState("WinState");
-        snake->setGoal(snake->getGoal() + 50);
+        snake->setGoal(snake->getGoal() + 200);
     }
-    // Deletes the apple every 30secs 
+    // Deletes the apple every 30secs
     if (tick % 1800 == 0)
     {
-        //find and delete the apple 
+        // find and delete the apple
         for (auto it = staticEntityVector.begin(); it != staticEntityVector.end(); it++)
         {
             if (dynamic_cast<apple *>(it->get()))
@@ -181,12 +191,12 @@ void GameState::update()
         foodSpawned = false;
     }
 }
-
-//forcing an itterative method to be recursive discousting
-void GameState::drawShortestPath(){
-    search->updateGrid(globalGrid, lastBody,0);
+// forcing an itterative method to be recursive discousting
+void GameState::drawShortestPath()
+{
+    search->updateGrid(globalGrid, lastBody, 0);
     std::pair<int, int> head = {snake->getHead()[0], snake->getHead()[1]};
-    std::pair<int, int> food = {currentFoodX,currentFoodY };
+    std::pair<int, int> food = {currentFoodX, currentFoodY};
     search->updateGrid(globalGrid, snake->getBody(), 1);
     this->lastBody = snake->getBody();
     std::queue<std::tuple<int, int, int>> queue;
@@ -194,13 +204,12 @@ void GameState::drawShortestPath(){
     std::set<std::pair<int, int>> visited = {head};
     std::map<std::pair<int, int>, std::pair<int, int>> parent = {{head, {}}};
     auto [path, steps] = search->recursive_bfs(globalGrid, head, food, queue, visited, parent);
-    search->updateGrid(globalGrid, lastBody,0);
+    search->updateGrid(globalGrid, lastBody, 0);
     ofSetColor(ofColor::blue);
-    for(auto& e:path){
-        ofDrawRectangle(e.first*cellSize, e.second*cellSize, cellSize, cellSize);
+    for (auto &e : path)
+    {
+        ofDrawRectangle(e.first * cellSize, e.second * cellSize, cellSize, cellSize);
     }
-
-
 }
 
 void GameState::draw()
@@ -210,15 +219,19 @@ void GameState::draw()
     ofDrawBitmapString("Score:" + ofToString(snake->getScore()), 10, 20);
     ofDrawBitmapString("Goal:" + ofToString(snake->getGoal()), 10, 40);
     ofDrawBitmapString("Speed:" + ofToString(snake->getSpeed()), 10, 60);
+    ofDrawBitmapString("PowerUps:" + ofToString(powerUps), 10, 80);
+    ofDrawBitmapString("Colllected PowerUps:" + ofToString(000), 10, 100);
+
     snake->draw();
     for (unsigned int i = 0; i < staticEntityVector.size(); i++)
     {
         staticEntityVector[i]->draw(snake->getBody());
     }
-    drawPower();
-    if(spacePressed){
+    if (spacePressed)
+    {
         drawShortestPath();
     }
+    drawPower();
 }
 //--------------------------------------------------------------
 void GameState::keyPressed(int key)
@@ -265,6 +278,35 @@ void GameState::keyPressed(int key)
         setFinished(true);
         setNextState("pauseState");
         break;
+
+    case 'b':
+        // PowerUp *currentPowerUp = powerUps.front().get();
+
+        // if (currentPowerUp)
+        // {
+        //     if (typeid(*currentPowerUp) == typeid(SpeedPowerUp))
+        //     {
+        //         std::cout << "Speed power-up activated!" << std::endl;
+        //         dynamic_cast<SpeedPowerUp *>(currentPowerUp)->applyPowerUp(snake);
+        //     }
+        //     else if (typeid(*currentPowerUp) == typeid(BetterApple))
+        //     {
+        //         std::cout << "Better Apple power-up activated!" << std::endl;
+        //         dynamic_cast<BetterApple *>(currentPowerUp)->applyPowerUp(snake);
+        //     }
+        //     else if (typeid(*currentPowerUp) == typeid(GodMode))
+        //     {
+        //         std::cout << "Better Apple power-up activated!" << std::endl;
+        //         dynamic_cast<GodMode *>(currentPowerUp)->applyPowerUp(snake);
+        //     }
+        // }
+        // else
+        // {
+        //     std::cout << "No power-up Available!" << std::endl;
+        // }
+
+        break;
+
     default:
         break;
     }
@@ -277,7 +319,7 @@ void GameState::keyReleased(int key)
     case 'e':
         spacePressed = !spacePressed;
         break;
-    
+
     default:
         break;
     }
@@ -325,8 +367,4 @@ void GameState::drawBoardGrid()
     ofSetBackgroundColor(33, 4, 43);
 
     ofDrawGrid(25, 64, false, false, false, true);
-
-
 }
-
-

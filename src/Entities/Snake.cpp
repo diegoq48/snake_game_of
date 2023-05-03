@@ -9,7 +9,7 @@ Snake::Snake(int segmentSize, int boardSizeW, int boardSizeH)
     body.push_back({11, 9});
     this->speed = 1;
     this->score = 0;
-    this->goal = 50;
+    this->goal = 200;
     this->direction = LEFT;
     this->crashed = false;
     this->segmentSize = segmentSize;
