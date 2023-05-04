@@ -28,9 +28,7 @@ void LoseState::draw()
 }
 void LoseState::mousePressed(int x, int y, int button)
 {
-    std::cout << "mouse pressed" << std::endl;
    float dist = ofDist(x, y, ofGetWidth()/2, ofGetHeight()/2);
-   std::cout << dist << std::endl;
     if (dist < 1000)
     {
          setFinished(true);

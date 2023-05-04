@@ -3,9 +3,8 @@
 #include "State.h"
 #include "Snake.h"
 #include "ofMain.h"
-#include "PowerUps.h"
-#include <memory>
 #include "apple.h"
+#include <memory>
 #include "search_traversal.h"
 
 class GameState : public State
@@ -17,8 +16,8 @@ public:
     void update();
     void draw();
     void keyPressed(int key);
-    void PowerSpawner();
-    void drawPower();
+    //void PowerSpawner();
+    //void drawPower();
     void drawStartScreen();
     void keyReleased(int key);
     void drawLostScreen();
@@ -44,6 +43,7 @@ public:
 private:
     std::vector<std::unique_ptr<staticEntity>> staticEntityVector;
     // make a sharedPtr of type search_traversal
+    int appleTracker = 0;
     std::shared_ptr<searchAlgorithm> search;
     // int foodSpawnRate = ofGetTimeMillis() + 5000;
 

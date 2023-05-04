@@ -12,7 +12,7 @@ class staticEntity: public Entity {
         staticEntity (int x, int y, bool deadly, int entityID, ofColor color);
         ~staticEntity();
         void update();
-        void draw(std::vector<std::vector<int>> snakeBody);
+        virtual void draw(std::vector<std::vector<int>> snakeBody);
         
         bool collidesWith( std::vector<std::vector<int>> snakeBody);
         int getX(){ return xPosition; };
