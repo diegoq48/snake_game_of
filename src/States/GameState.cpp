@@ -3,6 +3,7 @@
 GameState::GameState()
 {
     foodSpawned = false;
+    PowerSpawned = false;
     cellSize = 25;
     boardSizeWidth = 64;
     boardSizeHeight = 36;
@@ -35,6 +36,7 @@ void GameState::reset()
         ticksOnSpeedModeActivation = 0;
         lastBody.clear();
 
+
     }
 
     setFinished(false);
@@ -61,13 +63,13 @@ void GameState::update()
         return;
     }
     if (snake->getScore() % 50 == 0 && snake->getScore() != priorScore){
-        if (foodSpawned && !PowerSpawned){
+        if (foodSpawned){
             // search the staticEntityVector for the apple and remove it
             for (auto it = staticEntityVector.begin(); it != staticEntityVector.end(); it++)
             {
                 if(dynamic_cast<apple*>(it->get()) != nullptr){
                     staticEntityVector.erase(it);
-                    break;
+                    
                 }
             }
             switch (appleTracker){
@@ -92,11 +94,14 @@ void GameState::update()
                 default:
                     break;
             }
+        currentFoodX = staticEntityVector.back()->getX();
+        currentFoodY = staticEntityVector.back()->getY();
+        std::cout << "Current Food X: " << currentFoodX << " Current Food Y: " << currentFoodY << std::endl;
         priorScore = snake->getScore();
         }
     }
     // creates an apple object to be displayed on the screen and assigns currentFoodX and currentFoodY to the apple's x and y
-    if (!foodSpawned)
+    if (!foodSpawned && !PowerSpawned)
     {
         staticEntityVector.push_back(std::make_unique<apple>(cellSize));
         for (auto &entity : staticEntityVector)
@@ -241,7 +246,7 @@ void GameState::update()
         {
             if (dynamic_cast<PowerUp *>(it->get()))
             {
-                break;
+                continue;
             }
             if (dynamic_cast<apple *>(it->get()))
             {

@@ -15,8 +15,8 @@ class staticEntity: public Entity {
         virtual void draw(std::vector<std::vector<int>> snakeBody);
         
         bool collidesWith( std::vector<std::vector<int>> snakeBody);
-        int getX(){ return xPosition; };
-        int getY(){ return yPosition; };
+        virtual int getX(){ return xPosition; };
+        virtual int getY(){ return yPosition; };
         int getID(){ return entityID; };
 
 };

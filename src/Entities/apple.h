@@ -12,8 +12,8 @@ public:
     virtual void draw(std::vector<std::vector<int>> snakeBody);
     ~apple();
     bool collidesWith(std::vector<std::vector<int>> snakeBody);
-    int getX(){ return x; };
-    int getY(){ return y; };
+    virtual int getX(){ return x; };
+    virtual int getY(){ return y; };
     
 };
 
@@ -40,6 +40,8 @@ public:
     void draw(std::vector<std::vector<int>> snakeBody);
     std::string getName() { return "Speed"; }
     void deactivate(Snake *snake);
+    virtual int getX() { return this->x; };
+    virtual int getY() { return this->y; };
 };
 
 class BetterApple : public PowerUp
@@ -50,6 +52,8 @@ public:
     void draw(std::vector<std::vector<int>> snakeBody);
     std::string getName() { return "BetterApple"; }
     void deactivate(Snake *snake);
+    virtual int getX() { return this->x; };
+    virtual int getY() { return this->y; };
 };
 
 class GodMode : public PowerUp
@@ -60,4 +64,6 @@ public:
     void draw(std::vector<std::vector<int>> snakeBody);
     std::string getName() { return "GodMode"; }
     void deactivate(Snake *snake);
+    virtual int getX() { return this->x; };
+    virtual int getY() { return this->y; };
     };

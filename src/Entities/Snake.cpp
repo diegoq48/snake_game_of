@@ -32,29 +32,33 @@ void Snake::update() {
             return;
         }
     }
-    else {
-        // check for wall collision
-        vector<int> oldHead = this->getHead();
-        if (oldHead[0] == -1 || oldHead[0] == boardSizeWidth || oldHead[1] == -1 || oldHead[1] == boardSizeHeight) {
-            crashed = true;
-            return;
-        }
 
-        // update body position
-        vector<int> prevPos = this->body[0];
-        this->body[0][0] += this->direction == LEFT ? -speed : this->direction == RIGHT ? speed : 0;
-        this->body[0][1] += this->direction == UP ? -speed : this->direction == DOWN ? speed : 0;
-        for (int i = 1; i < this->body.size(); i++) {
-            vector<int> temp = this->body[i];
-            this->body[i][0] = prevPos[0];
-            this->body[i][1] = prevPos[1];
-            prevPos = temp;
-        }
+    // update body position
+    vector<int> prevPos = this->body[0];
+    this->body[0][0] += this->direction == LEFT ? -speed : this->direction == RIGHT ? speed : 0;
+    this->body[0][1] += this->direction == UP ? -speed : this->direction == DOWN ? speed : 0;
+    for (int i = 1; i < this->body.size(); i++) {
+        vector<int> temp = this->body[i];
+        this->body[i][0] = prevPos[0];
+        this->body[i][1] = prevPos[1];
+        prevPos = temp;
+    }
+
+    // check for wall collision or god mode
+    vector<int> headPos = this->getHead();
+    if (!this->isGod && (headPos[0] == -1 || headPos[0] == boardSizeWidth || headPos[1] == -1 || headPos[1] == boardSizeHeight)) {
+        crashed = true;
+        return;
+    } else if (this->isGod && (headPos[0] == -1 || headPos[0] == boardSizeWidth || headPos[1] == -1 || headPos[1] == boardSizeHeight)) {
+        // wrap the head position around to the opposite side of the board
+        this->body[0][0] = (this->body[0][0] + boardSizeWidth) % boardSizeWidth;
+        this->body[0][1] = (this->body[0][1] + boardSizeHeight) % boardSizeHeight;
     }
 
     // check for self-crash
     checkSelfCrash();
 }
+
 
 void Snake::draw()
 {
