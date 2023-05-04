@@ -5,6 +5,7 @@
 #include "ofMain.h"
 #include "apple.h"
 #include <memory>
+#include <vector>
 #include "search_traversal.h"
 
 class GameState : public State
@@ -47,10 +48,15 @@ private:
     std::shared_ptr<searchAlgorithm> search;
     // int foodSpawnRate = ofGetTimeMillis() + 5000;
 
-    std::vector<std::unique_ptr<PowerUp>> powerUps;
+    std::unique_ptr<PowerUp> powerUp = nullptr;
 
     bool spacePressed = false;
+    int priorScore = 0;
     unsigned int tick = 0;
     unsigned int entityCount = 1;
     std::vector<std::vector<int>> lastBody;
+    std::unique_ptr<PowerUp> activePowerUp = nullptr;
+    int ticksOnGodModeActivation = 0;
+    int ticksOnSpeedModeActivation = 0;
+
 };

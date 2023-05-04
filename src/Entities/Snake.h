@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-
+#include <iostream>
 enum Direction
 {
     LEFT,
@@ -21,6 +21,7 @@ private:
     Direction direction;
     int boardSizeWidth, boardSizeHeight;
     int segmentSize;
+    bool isGod = false;
     bool crashed;
 
 public:
@@ -54,11 +55,21 @@ public:
     void draw();
     void changeDirection(Direction d);
     void checkSelfCrash();
+    void setGod(bool god)
+    {
+        this->isGod = god;
+        std::cout << "God mode: " << god << std::endl;
+    }
+    
     void grow();
     void removeSection(int numOfSections, int recursionDepth = 0);
     bool isCrashed()
     {
         return this->crashed;
+    }
+    bool getGod()
+    {
+        return this->isGod;
     }
     std::vector<int> getHead()
     {

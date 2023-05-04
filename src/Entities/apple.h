@@ -28,7 +28,8 @@ public:
     virtual void applyPowerUp(Snake *snake) = 0; // apply the power-up effect
     virtual void draw(std::vector<std::vector<int>> snakeBody) = 0;                     // draw the power-up on the screen
     virtual bool collidesWith(std::vector<std::vector<int>> snakeBody);             // check if the power-up collides with a given position'
-    virtual int getName() = 0;
+    virtual std::string getName() = 0;
+    virtual void deactivate(Snake *snake) = 0;
 };
 
 class SpeedPowerUp : public PowerUp
@@ -37,7 +38,8 @@ public:
     SpeedPowerUp(int cellSize);
     void applyPowerUp(Snake *snake);
     void draw(std::vector<std::vector<int>> snakeBody);
-    int getName() { return 0; }
+    std::string getName() { return "Speed"; }
+    void deactivate(Snake *snake);
 };
 
 class BetterApple : public PowerUp
@@ -46,7 +48,8 @@ public:
     BetterApple(int cellsize);
     void applyPowerUp(Snake *snake);
     void draw(std::vector<std::vector<int>> snakeBody);
-    int getName() { return 1; }
+    std::string getName() { return "BetterApple"; }
+    void deactivate(Snake *snake);
 };
 
 class GodMode : public PowerUp
@@ -55,5 +58,6 @@ public:
     GodMode(int cellsize);
     void applyPowerUp(Snake *snake);
     void draw(std::vector<std::vector<int>> snakeBody);
-    int getName() { return 2; }
+    std::string getName() { return "GodMode"; }
+    void deactivate(Snake *snake);
     };

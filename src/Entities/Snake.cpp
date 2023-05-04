@@ -22,52 +22,37 @@ Snake::~Snake()
     // TODO Auto-generated destructor stub
 }
 
-void Snake::update()
-{
-    vector<int> oldHead = this->getHead();
+void Snake::update() {
+    if (this->isGod) {
+        // skip update if snake is in god mode and hits the wall
+        if ((this->direction == LEFT && this->body[0][0] == 0) ||
+            (this->direction == DOWN && this->body[0][1] == boardSizeHeight - 1) ||
+            (this->direction == RIGHT && this->body[0][0] == boardSizeWidth - 1) ||
+            (this->direction == UP && this->body[0][1] == 0)) {
+            return;
+        }
+    }
+    else {
+        // check for wall collision
+        vector<int> oldHead = this->getHead();
+        if (oldHead[0] == -1 || oldHead[0] == boardSizeWidth || oldHead[1] == -1 || oldHead[1] == boardSizeHeight) {
+            crashed = true;
+            return;
+        }
 
-    switch (this->direction)
-    {
-    case LEFT:
-    {
-        this->body[0][0] -= 1;
-        break;
-    }
-    case DOWN:
-    {
-        this->body[0][1] += 1;
-        break;
-    }
-    case RIGHT:
-    {
-        this->body[0][0] += 1;
-        break;
-    }
-    case UP:
-    {
-        this->body[0][1] -= 1;
-        break;
-    }
-    }
-
-    if (oldHead[0] == -1 || oldHead[0] == boardSizeWidth || oldHead[1] == -1 || oldHead[1] == boardSizeHeight)
-    {
-        crashed = true;
-        return;
+        // update body position
+        vector<int> prevPos = this->body[0];
+        this->body[0][0] += this->direction == LEFT ? -speed : this->direction == RIGHT ? speed : 0;
+        this->body[0][1] += this->direction == UP ? -speed : this->direction == DOWN ? speed : 0;
+        for (int i = 1; i < this->body.size(); i++) {
+            vector<int> temp = this->body[i];
+            this->body[i][0] = prevPos[0];
+            this->body[i][1] = prevPos[1];
+            prevPos = temp;
+        }
     }
 
-    int prevX = oldHead[0];
-    int prevY = oldHead[1];
-    for (int i = 1; i < this->body.size(); i++)
-    {
-        int currX = this->body[i][0];
-        int currY = this->body[i][1];
-        this->body[i][0] = prevX;
-        this->body[i][1] = prevY;
-        prevX = currX;
-        prevY = currY;
-    }
-
+    // check for self-crash
     checkSelfCrash();
 }
 

@@ -38,7 +38,6 @@ bool apple::collidesWith(std::vector<std::vector<int>> snakeBody)
     return (this->x == snakeBody[0][0] && this->y == snakeBody[0][1]);
 }
 apple::~apple(){
-    std::cout << "apple deleted" << std::endl;
 }
 
 PowerUp::PowerUp(int cellSize) : apple(cellSize){
@@ -58,13 +57,12 @@ SpeedPowerUp::SpeedPowerUp(int cellsize): PowerUp(cellsize){
 
 void SpeedPowerUp::applyPowerUp(Snake *snake)
 {
-    snake->setSpeed(snake->getSpeed() + 5);
+    snake->setSpeed(2);
 }
 
 
 void SpeedPowerUp::draw(std::vector<std::vector<int>> snakeBody)
 {
-    std::cout << "drawing speed powerup" << std::endl;
     ofSetColor(ofColor::cyan);
     ofDrawCircle(this->x * cellSize + cellSize / 2, this->y * cellSize + cellSize / 2, cellSize / 2);
 }
@@ -81,7 +79,6 @@ void BetterApple::applyPowerUp(Snake *snake)
 
 void BetterApple::draw(std::vector<std::vector<int>> snakeBody)
 {
-    std::cout << "drawing better apple" << std::endl;
     ofSetColor(ofColor::greenYellow);
     ofDrawRectangle(this->x * cellSize, this->y * cellSize, cellSize, cellSize);
 }
@@ -92,14 +89,30 @@ GodMode::GodMode(int cellsize): PowerUp(cellsize){
 }
 void GodMode::applyPowerUp(Snake *snake)
 {
-    // snake->activateGodMode(duration);
+    std::cout << "God mode activated" << std::endl;
+    snake->setGod(true);
 }
 
 void GodMode::draw(std::vector<std::vector<int>> snakeBody)
 {
-    std::cout << "drawing god mode" << std::endl;
     ofSetColor(ofColor::magenta);
     ofDrawTriangle(this->x * cellSize + cellSize / 2, this->y * cellSize,
                    this->x * cellSize, this->y * cellSize + cellSize,
                    this->x * cellSize + cellSize, this->y * cellSize + cellSize);
+}
+
+void GodMode::deactivate(Snake *snake)
+{
+    std::cout << "God mode deactivated" << std::endl;
+    snake->setGod(false);
+}
+
+void SpeedPowerUp::deactivate(Snake *snake)
+{
+    snake->setSpeed(1);
+}
+
+void BetterApple::deactivate(Snake *snake)
+{
+    return;
 }

@@ -27,6 +27,14 @@ void GameState::reset()
         staticEntityVector.clear();
         entityCount = 1;
         tick = 0;
+        appleTracker = 0;
+        priorScore = 0;
+        activePowerUp = nullptr;
+        powerUp = nullptr;
+        ticksOnGodModeActivation = 0;
+        ticksOnSpeedModeActivation = 0;
+        lastBody.clear();
+
     }
 
     setFinished(false);
@@ -36,6 +44,15 @@ void GameState::reset()
 void GameState::update()
 {
     tick++;
+    if (this->tick == this->ticksOnGodModeActivation + 300 && this->activePowerUp != nullptr)
+    {
+        this->activePowerUp->deactivate(snake);
+        this->activePowerUp = nullptr;
+    }
+    if (this->tick == this->ticksOnSpeedModeActivation +350 && this->activePowerUp != nullptr){
+        this->activePowerUp->deactivate(snake);
+        this->activePowerUp = nullptr;
+    }
     // checks if the snake has crashed if so it ends the game
     if (snake->isCrashed())
     {
@@ -43,7 +60,7 @@ void GameState::update()
         this->setFinished(true);
         return;
     }
-    if (snake->getScore() % 50 == 0 && snake->getScore() != 0){
+    if (snake->getScore() % 50 == 0 && snake->getScore() != priorScore){
         if (foodSpawned && !PowerSpawned){
             // search the staticEntityVector for the apple and remove it
             for (auto it = staticEntityVector.begin(); it != staticEntityVector.end(); it++)
@@ -55,20 +72,17 @@ void GameState::update()
             }
             switch (appleTracker){
                 case 0:
-                    std::cout << "Spawning Powerup" << std::endl;
                     staticEntityVector.push_back(std::make_unique<SpeedPowerUp>(cellSize));
                     PowerSpawned = true;
                     foodSpawned = true;
                     appleTracker++;
                     break;
                 case 1:
-                    std::cout << "Spawning Powerup" << std::endl;
                     staticEntityVector.push_back(std::make_unique<BetterApple>(cellSize));
                     PowerSpawned = true;
                     foodSpawned = true;
                     appleTracker++;
                     break;
-                    std::cout << "Spawning powerup" << std::endl;
                 case 2:
                     staticEntityVector.push_back(std::make_unique<GodMode>(cellSize));
                     PowerSpawned = true;
@@ -78,7 +92,7 @@ void GameState::update()
                 default:
                     break;
             }
-
+        priorScore = snake->getScore();
         }
     }
     // creates an apple object to be displayed on the screen and assigns currentFoodX and currentFoodY to the apple's x and y
@@ -108,12 +122,11 @@ void GameState::update()
             if (dynamic_cast<SpeedPowerUp *>(it->get()) != nullptr)
             {
                 snake->setScore(snake->getScore() + 10);
-                std::cout << "Speed Powerup Crashed" << std::endl;
                 snake->setSpeed(snake->getSpeed() + 0.5);
                 PowerSpawned = false;
                 foodSpawned = false;
                 //move the it pointer to the powerUps vector 
-                this->powerUps.push_back(std::move(std::unique_ptr<PowerUp>(dynamic_cast<PowerUp*>(it->release()))));
+                this->powerUp = (std::move(std::unique_ptr<PowerUp>(dynamic_cast<PowerUp*>(it->release()))));
                 staticEntityVector.erase(it);
 
                 break;
@@ -123,16 +136,17 @@ void GameState::update()
                 snake->setScore(snake->getScore() + 10);
                 foodSpawned = false; 
                 PowerSpawned = false;
-                this->powerUps.push_back(std::move(std::unique_ptr<PowerUp>(dynamic_cast<PowerUp*>(it->release()))));     
+                this->powerUp = (std::move(std::unique_ptr<PowerUp>(dynamic_cast<PowerUp*>(it->release()))));     
                 staticEntityVector.erase(it);
                 break;
             }
             else if (dynamic_cast<BetterApple *>(it->get()) != nullptr)
             {
-                snake->setScore(snake->getScore() + 10);
+                snake->setScore(snake->getScore() + 20);
                 foodSpawned = false;
                 PowerSpawned = false;
-                this->powerUps.push_back(std::move(std::unique_ptr<PowerUp>(dynamic_cast<PowerUp*>(it->release()))));
+                snake->grow();
+                snake->grow();
                 staticEntityVector.erase(it);
                 break;
             }
@@ -146,8 +160,10 @@ void GameState::update()
             }
             else
             {
-                snake->setCrashed(true);
-                return;
+                if(!snake->getGod()){
+                    snake->setCrashed(true);
+                    return;
+                }
             }
         }
     }
@@ -218,11 +234,15 @@ void GameState::update()
         snake->setGoal(snake->getGoal() + 200);
     }
     // Deletes the apple every 30secs
-    if (tick % 1800 == 0)
+    if (tick % 900 == 0)
     {
         // find and delete the apple
         for (auto it = staticEntityVector.begin(); it != staticEntityVector.end(); it++)
         {
+            if (dynamic_cast<PowerUp *>(it->get()))
+            {
+                break;
+            }
             if (dynamic_cast<apple *>(it->get()))
             {
                 staticEntityVector.erase(it);
@@ -230,7 +250,7 @@ void GameState::update()
             }
         }
         foodSpawned = false;
-        PowerSpawned = false;
+        
     }
 }
 // forcing an itterative method to be recursive discousting
@@ -261,31 +281,30 @@ void GameState::draw()
     ofDrawBitmapString("Score:" + ofToString(snake->getScore()), 10, 20);
     ofDrawBitmapString("Goal:" + ofToString(snake->getGoal()), 10, 40);
     ofDrawBitmapString("Speed:" + ofToString(snake->getSpeed()), 10, 60);
+    if (this->activePowerUp != nullptr)
+    ofDrawBitmapString("Current PowerUp:" + this->activePowerUp->getName(), 10, 80);
+    if (this->powerUp != nullptr){
+    ofDrawBitmapString("Cached PowerUp:" + ofToString(this->powerUp->getName()), 10, 100);}
     //ofDrawBitmapString("PowerUps:" + ofToString(powerUps), 10, 80);
     //ofDrawBitmapString("Colllected PowerUps:" + ofToString(000), 10, 100);
 
     snake->draw();
     for (unsigned int i = 0; i < staticEntityVector.size(); i++)
     {
-        //make a dynamic cast to check if the entity is a powerup and print true or false 
-      /*   if (PowerUp* powerUpPtr = dynamic_cast<PowerUp *>(staticEntityVector[i].get()))
-        {
-            if (powerUpPtr != nullptr)
-            continue;
-        } */
         staticEntityVector[i]->draw(snake->getBody());
     }
     if (spacePressed)
     {
         drawShortestPath();
     }
+    
 }
 //--------------------------------------------------------------
 void GameState::keyPressed(int key)
 {
     switch (key)
     {
-    case 'e':
+    case 'g':
         spacePressed = !spacePressed;
         break;
     case OF_KEY_LEFT:
@@ -327,36 +346,23 @@ void GameState::keyPressed(int key)
         break;
 
     case 'b':
-        // PowerUp *currentPowerUp = powerUps.front().get();
+        if (powerUp != nullptr){
+        this->powerUp->applyPowerUp(snake);
+        this->activePowerUp = std::move(this->powerUp);
+        this->powerUp = nullptr;
 
-        // if (currentPowerUp)
-        // {
-        //     if (typeid(*currentPowerUp) == typeid(SpeedPowerUp))
-        //     {
-        //         std::cout << "Speed power-up activated!" << std::endl;
-        //         dynamic_cast<SpeedPowerUp *>(currentPowerUp)->applyPowerUp(snake);
-        //     }
-        //     else if (typeid(*currentPowerUp) == typeid(BetterApple))
-        //     {
-        //         std::cout << "Better Apple power-up activated!" << std::endl;
-        //         dynamic_cast<BetterApple *>(currentPowerUp)->applyPowerUp(snake);
-        //     }
-        //     else if (typeid(*currentPowerUp) == typeid(GodMode))
-        //     {
-        //         std::cout << "Better Apple power-up activated!" << std::endl;
-        //         dynamic_cast<GodMode *>(currentPowerUp)->applyPowerUp(snake);
-        //     }
-        // }
-        // else
-        // {
-        //     std::cout << "No power-up Available!" << std::endl;
-        // }
-
-        break;
+        
+        if (this->activePowerUp->getName() == "GodMode"){
+            this->ticksOnGodModeActivation = this->tick;
+        }
+        if (this->activePowerUp->getName() == "Speed"){
+            this->ticksOnSpeedModeActivation = this->tick;
+        }                                                                           
 
     default:
         break;
     }
+}
 }
 
 void GameState::keyReleased(int key)
